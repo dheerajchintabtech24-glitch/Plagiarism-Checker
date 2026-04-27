@@ -1,8 +1,8 @@
-# PlagScan Pro — Advanced Plagiarism Detection System
+# Plagiarism-Checker
 
-> Production-grade plagiarism detection powered by **7 algorithms**, with **internet search integration**, **database persistence**, and a **premium dark-themed UI**.
+Plagiarism-Checker is an advanced Spring Boot application for document comparison and internet-based source scanning. It uses a multi-algorithm similarity engine, supports file uploads, stores analysis history, and exposes REST APIs for automated plagiarism detection.
 
-![Java](https://img.shields.io/badge/Java-17+-orange)
+![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-green)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
@@ -11,11 +11,11 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Java 17+** — [Download JDK](https://adoptium.net/)
-- **Maven 3.8+** — [Download Maven](https://maven.apache.org/)
-- **MySQL** (optional) — H2 in-memory database works out of the box
+- Java 21+
+- Maven 3.8+
+- MySQL (optional, H2 is configured by default)
 
-### Run the Application
+### Run locally
 
 ```bash
 cd plagiarism-checker
@@ -23,213 +23,146 @@ mvn clean package -DskipTests
 mvn spring-boot:run
 ```
 
-Then open: **http://localhost:8080**
+Open: **http://localhost:8080**
 
 ---
 
-## 🧠 Core Features
+## 🧠 What it does
 
-### 1. Document Compare (7 Algorithms)
-Compare two documents using a weighted pipeline of 7 similarity algorithms:
+- Compares documents with a weighted pipeline of 7 similarity algorithms
+- Scans web sources via HTML scraping and compares matched content
+- Supports `.txt`, `.pdf`, and `.docx` uploads
+- Stores results in a database for history and reporting
+- Exposes REST endpoints for text, file, batch, and internet analysis
+- Includes a modern dark-themed UI for reports and analysis review
 
-| Algorithm | Weight | Description |
-|-----------|--------|-------------|
-| Rabin-Karp | 20% | Rolling hash k-gram overlap detection |
-| KMP | 10% | Exact phrase matching (Knuth-Morris-Pratt) |
-| Winnowing | 20% | Document fingerprinting (MOSS-style) |
-| Levenshtein | 20% | Fuzzy sentence-level edit distance |
-| Cosine TF | 15% | Term frequency vector space model |
-| Jaccard | 5% | Set-based word overlap |
-| Synonym Map | 10% | Paraphrase detection via synonym dictionary |
+---
 
-### 2. Internet Scan 🌐
-Scan your text against the internet:
-- Extracts key sentences as search queries
-- Searches Google via Jsoup web scraping (no API key needed!)
-- Fetches and cleans web page content
-- Compares against each source using all 7 algorithms
-- Returns matched sources with URLs, similarity scores, and matching snippets
+## 🔍 Core Features
 
-### 3. File Upload Support
-Supports `.txt`, `.pdf`, and `.docx` file uploads:
-- PDF parsing via Apache PDFBox
-- DOCX parsing via Apache POI
-- Plain text direct reading
+### Multi-algorithm comparison
+- Rabin-Karp: rolling hash k-gram comparison
+- KMP: exact phrase detection
+- Winnowing: fingerprint-based plagiarism detection
+- Levenshtein: edit distance for fuzzy matching
+- Cosine TF: vector similarity for term distributions
+- Jaccard: set overlap scoring
+- Synonym matching: paraphrase detection using a synonym dictionary
 
-### 4. Batch Compare
-Compare N documents against each other in an N×N matrix:
-- Similarity heatmap visualization
-- Flagged pairs with high similarity
-- Great for classroom plagiarism detection
+### Internet scan
+- Extracts key sentences and builds search queries
+- Scrapes pages using Jsoup
+- Compares fetched web content with the submitted text
+- Returns source URLs, similarity scores, and matched snippets
 
-### 5. Database Persistence
-All analysis results are stored in the database:
-- **H2** (default) — zero configuration, file-based
-- **MySQL** — production-ready, uncomment in `application.properties`
-- Full history with summary statistics
+### File upload support
+- `.txt`: plain text
+- `.pdf`: Apache PDFBox
+- `.docx`: Apache POI
 
-### 6. Premium UI
-Modern dark-themed interface:
-- Plagiarism heatmap visualization
-- Side-by-side diff with highlighted matches
-- Sentence-level analysis with confidence scores
-- Real-time progress feedback during internet scans
-- Export reports as HTML / Print to PDF
+### Batch comparison
+- Runs N×N document comparisons
+- Detects similar pairs across multiple files
+- Useful for classroom or library plagiarism checks
+
+### History and persistence
+- Default H2 database for zero-config use
+- Optional MySQL support via `application.properties`
+- Stores past results, summaries, and report metadata
 
 ---
 
 ## 📡 API Endpoints
 
-### Document Analysis
+### Document analysis
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/analyze/text` | Compare two text inputs |
 | POST | `/api/analyze/files` | Compare two uploaded files |
-| POST | `/api/analyze/url` | Compare text vs URL |
+| POST | `/api/analyze/url` | Compare text against a URL |
 | POST | `/api/v2/analyze` | Full analysis with history |
 
-### Internet Scan
+### Internet scan
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/v2/scan` | Scan text against the internet |
+| POST | `/api/v2/scan` | Scan text against internet sources |
 
-### Batch & Reports
+### Batch & reports
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/v2/batch` | N×N batch comparison |
+| POST | `/api/v2/batch` | N×N batch document comparison |
 | POST | `/api/v2/report/html` | Export HTML report |
 
 ### History
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/v2/history` | Get all past analyses |
+| GET | `/api/v2/history` | Retrieve all analysis history |
 | GET | `/api/v2/history/summary` | Get summary statistics |
 | DELETE | `/api/v2/history/{id}` | Delete a history entry |
-| DELETE | `/api/v2/history` | Clear all history |
+| DELETE | `/api/v2/history` | Clear analysis history |
 
 ### Utilities
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/health` | Health check |
 | GET | `/api/v2/synonyms?word=fast` | Lookup synonyms |
-| GET | `/api/v2/synonyms/check?a=fast&b=quick` | Check if synonyms |
+| GET | `/api/v2/synonyms/check?a=fast&b=quick` | Compare synonyms |
 
 ---
 
-## 🗂️ Project Structure
+## 🗂️ Project structure
 
 ```
 plagiarism-checker/
-├── pom.xml                          # Maven dependencies
-├── schema.sql                       # Database schema reference
+├── pom.xml
+├── README.md
 ├── src/main/java/com/plagchecker/
-│   ├── PlagCheckerApplication.java  # Spring Boot entry point
+│   ├── PlagCheckerApplication.java
 │   ├── api/
-│   │   ├── PlagiarismController.java     # Basic REST endpoints
-│   │   ├── ExtendedController.java       # V2 endpoints (scan, batch, history)
-│   │   └── PlagiarismAnalysisService.java # Analysis pipeline
-│   ├── core/
-│   │   ├── RabinKarp.java                # Rolling hash algorithm
-│   │   ├── KMPMatcher.java               # Knuth-Morris-Pratt
-│   │   ├── Winnowing.java                # MOSS-style fingerprinting
-│   │   ├── Levenshtein.java              # Edit distance
-│   │   └── SimilarityScorer.java         # Simple scorer
-│   ├── search/
-│   │   ├── InternetSearchService.java    # Web search (Google scraping)
-│   │   ├── WebContentExtractor.java      # HTML text extraction
-│   │   └── InternetScanService.java      # Scan orchestration
-│   ├── preprocessing/
-│   │   └── TextPreprocessor.java         # Tokenization, stopwords, n-grams
-│   ├── model/
-│   │   ├── AnalysisResult.java           # Analysis result model
-│   │   └── InternetScanResult.java       # Internet scan model
-│   ├── entity/
-│   │   ├── PlagiarismCheck.java          # JPA entity
-│   │   └── PlagiarismCheckRepository.java # JPA repository
-│   ├── io/
-│   │   └── DocumentReader.java           # PDF/DOCX/TXT reader
-│   ├── history/
-│   │   └── AnalysisHistoryStore.java     # DB-backed history
-│   ├── report/
-│   │   └── ReportGenerator.java          # HTML report export
-│   ├── synonyms/
-│   │   └── SynonymMap.java               # Synonym dictionary
 │   ├── batch/
-│   │   └── BatchAnalysisService.java     # Batch comparison
-│   └── config/
-│       ├── RateLimitFilter.java          # Rate limiting (60 req/min)
-│       └── WebConfig.java                # CORS config
+│   ├── config/
+│   ├── core/
+│   ├── entity/
+│   ├── history/
+│   ├── io/
+│   ├── model/
+│   ├── preprocessing/
+│   ├── report/
+│   ├── search/
+│   ├── synonyms/
+│   └── ...
 └── src/main/resources/
-    ├── application.properties            # Configuration
-    └── static/
-        └── index.html                    # Frontend UI
+    ├── application.properties
+    └── static/index.html
 ```
 
 ---
 
-## 🔒 Security Features
+## 🔒 Security & reliability
 
-- **Rate Limiting**: 60 requests/minute per IP address
-- **Input Validation**: All inputs sanitized and validated
-- **File Size Limits**: Max 10MB upload per file
-- **CORS**: Configurable cross-origin policy
-- **Timeout Protection**: Web fetch operations have 8-second timeouts
-- **API Key Protection**: Google API keys never exposed to frontend
-
----
-
-## 🗄️ Database Setup
-
-### Option A: H2 (Default — Zero Config)
-The app uses H2 file-based storage by default. Data persists in `./plagscan-data.mv.db`.
-Access the H2 console at: http://localhost:8080/h2-console
-
-### Option B: MySQL
-1. Install MySQL and create the database:
-   ```sql
-   CREATE DATABASE plagcheck_db;
-   ```
-2. Update `application.properties`:
-   ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/plagcheck_db
-   spring.datasource.username=root
-   spring.datasource.password=yourpassword
-   ```
-3. Run the app — tables are auto-created by Hibernate.
+- Rate limiting for API protection
+- Input validation for text and file uploads
+- File size limits for uploads
+- CORS configuration
+- Timeout controls for remote web fetches
 
 ---
 
-## 📊 Sample Test Cases
+## 🗄️ Database setup
 
-### Test Case 1: Exact Copy
-```
-Text A: "Machine learning is a subset of artificial intelligence that provides systems the ability to learn from data."
-Text B: "Machine learning is a subset of artificial intelligence that provides systems the ability to learn from data."
-Expected: ~100% similarity, HIGH_PLAGIARISM
-```
+### H2 (default)
+Zero configuration; runs out of the box.
 
-### Test Case 2: Paraphrase
-```
-Text A: "The quick brown fox jumps over the lazy dog near the river bank."
-Text B: "A fast dark fox leaps above a sleepy canine beside the stream bank."
-Expected: Moderate similarity (synonym detection should catch quick→fast, jumps→leaps)
-```
-
-### Test Case 3: Original Content
-```
-Text A: "Neural networks have revolutionized computer vision and natural language processing."
-Text B: "The stock market experienced significant volatility during the third quarter of 2024."
-Expected: ~0% similarity, ORIGINAL
-```
+### MySQL
+Update `src/main/resources/application.properties` with your MySQL URL, username, and password.
 
 ---
 
-## ⚡ Performance
+## 📌 Notes
 
-- **Parallel Processing**: Multithreaded search queries and web content fetching
-- **Result Caching**: Search results and web content are cached to reduce API calls
-- **Efficient Algorithms**: O(n) Rabin-Karp, O(min(m,n)) space-optimized Levenshtein
-- **Connection Pooling**: HikariCP for database connections
+- The app targets Java 21 and Spring Boot 3.2
+- Build with Maven using `mvn clean package`
+- Run with `mvn spring-boot:run`
 
 ---
 
